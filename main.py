@@ -5,14 +5,10 @@ app = Flask(__name__)
 CORS(app)
 
 
-def calc_euckr_bytes(text: str) -> int:
-    """입력 문자열을 euc-kr로 인코딩했을 때 바이트 수 계산"""
-    try:
-        return len(text.encode("euc-kr"))
-    except UnicodeEncodeError:
-        # euc-kr에 없는 문자가 있을 경우 UTF-8 길이로 대체
-        return len(text.encode("utf-8"))
-
+def calc_bytes(text: str) -> int:
+    lenb = len(text.encode("utf-8"))
+    lenn = len(text)
+    return (lenb - lenn) * 3 + (lenn * 2 - lenb)
 
 @app.route("/bytecount", methods=["GET", "POST"])
 def bytecount():
