@@ -6,20 +6,13 @@ app = Flask(__name__)
 CORS(app)
 
 def calc_bytes(text: str) -> int:
-    try:
-        return len(text.encode("euc-kr"))
-    except UnicodeEncodeError:
-        # EUC-KR에 없는 문자는 그냥 2바이트로 계산
-        return sum(1 if ord(ch) < 128 else 2 for ch in text)
+    # UTF-8 인코딩 기준 바이트 수
+    return len(text.encode("utf-8"))
 
-@app.route("/bytecount", methods=["GET", "POST"])
-def calculate_byte_count():
-    if request.method == "GET":
-        text = request.args.get("text", "")
-    else:
-        data = request.get_json(silent=True) or {}
-        text = data.get("text", "")
-    return jsonify({"byte_count": calc_bytes(text), "text": text})
+@app.route("/bytecount", methods=["GET"])
+def bytecount_get():
+    text = request.args.get("text", "")
+    return jsonify({"byte_count": calc_bytes(text), "text": text}), 200
 
 @app.route("/healthz", methods=["GET"])
 def healthz():
