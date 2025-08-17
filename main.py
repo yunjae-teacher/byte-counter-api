@@ -9,9 +9,13 @@ def calc_bytes(text: str) -> int:
     # UTF-8 인코딩 기준 바이트 수
     return len(text.encode("utf-8"))
 
-@app.route("/bytecount", methods=["GET"])
-def bytecount_get():
-    text = request.args.get("text", "")
+@app.route("/bytecount", methods=["GET", "POST"])
+def bytecount():
+    if request.method == "GET":
+        text = request.args.get("text", "")
+    else:  # POST(JSON)
+        data = request.get_json(silent=True) or {}
+        text = data.get("text", "")
     return jsonify({"byte_count": calc_bytes(text), "text": text}), 200
 
 @app.route("/healthz", methods=["GET"])
