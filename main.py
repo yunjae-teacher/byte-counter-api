@@ -5,20 +5,22 @@ app = Flask(__name__)
 CORS(app)
 
 def calc_bytes(text: str) -> int:
-    # Excel/Google Sheets 방식: (LEN + LENB)/2
-    lenn = len(text)                  # LEN
-    lenb = len(text.encode("utf-8"))  # LENB (UTF-8)
-    return (lenn + lenb) // 2         # 항상 정수가 나옴(한글/ASCII 기준)
+    # LENB: UTF-8 바이트 수
+    lenb = len(text.encode("utf-8"))
+    # LEN: 문자열 길이
+    lenn = len(text)
+    # Excel/Google Sheets 수식 적용
+    return (lenb - lenn) * 3 + ((lenn * 2) - lenb)
 
 @app.route("/bytecount", methods=["GET", "POST"])
 def bytecount():
     if request.method == "GET":
         text = request.args.get("text", "")
-    else:
+    else:  # POST
         data = request.get_json(silent=True) or {}
         text = data.get("text", "")
 
-    byte_count = calc_bytes(text)  # ✅ 올바른 함수 호출
+    byte_count = calc_bytes(text)
     return jsonify({"byte_count": byte_count, "text": text}), 200
 
 @app.route("/healthz", methods=["GET"])
